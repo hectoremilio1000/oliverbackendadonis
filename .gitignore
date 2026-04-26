@@ -1,8 +1,12 @@
-node_modules/
-build/
-dist/
+build
+node_modules
+coverage
+.vscode
+.DS_Store
+.fleet
+.idea
 .env
 .env.local
-.DS_Store
+.env.*.local
+tmp
 *.log
-database.sqlite

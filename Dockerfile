@@ -1,15 +1,17 @@
-FROM node:22-alpine
-
+# ---- Builder ----
+FROM node:22-alpine AS builder
 WORKDIR /app
-
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --no-audit --no-fund
+COPY . .
+RUN node ace build
 
-COPY build/ ./build/
-
+# ---- Runner ----
+FROM node:22-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/build ./
+RUN npm ci --omit=dev --no-audit --no-fund
 EXPOSE 3333
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget -q -O- http://localhost:3333/api/health || exit 1
-
-CMD ["node", "build/server.js"]
+# Migrations corren al iniciar (idempotente). Después arranca el servidor.
+CMD ["sh", "-c", "node ace migration:run --force && node bin/server.js"]
