@@ -14,4 +14,4 @@ COPY --from=builder /app/build ./
 RUN npm ci --omit=dev --no-audit --no-fund
 EXPOSE 3333
 # Migrations corren al iniciar (idempotente). Después arranca el servidor.
-CMD ["sh", "-c", "node ace migration:run --force && node bin/server.js"]
+CMD ["sh", "-c", "node ace migration:run --force && node ace db:seed --force && node bin/server.js"]
